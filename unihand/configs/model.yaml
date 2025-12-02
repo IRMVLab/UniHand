@@ -1,0 +1,67 @@
+diffusion:
+  hidden_t_dim: 1024
+  hidden_dim: 1024
+  vocab_size: null
+  config_name: "huggingface-config"
+  use_plm_init: "no"
+  dropout: 0.1
+  diffusion_steps: 1000
+  noise_schedule: "sqrt"
+  learn_sigma: false
+  timestep_respacing: ""
+  predict_xstart: true
+  rescale_timesteps: true
+  sigma_small: false
+  rescale_learned_sigmas: false
+  use_kl: false
+
+schedule_sampler: "lossaware"
+
+# Other Model configurations
+pre_encoder:
+  input_dims: 2049  # 2*1024+1
+  output_dims: 1024
+  encoder_hidden_dims: 64
+
+post_encoder:
+  input_dims: 1024
+  output_dims: 3
+  encoder_hidden_dims1: 256
+  encoder_hidden_dims2: 64
+
+motion_encoder:
+  input_dims: 9  # 3*3
+  output_dims: 1024
+  encoder_hidden_dims: 64
+
+loc_encoder:
+  input_dims: 3
+  hidden_features: 256
+  out_features: 1024
+
+glip_encoder:
+  input_dims: 768
+  output_dims: 1024
+
+voxel_encoder:
+  input_dims: 1
+  output_dims: 64
+
+occ_feat_encoder:
+  input_dims: 64
+  output_dims: 1024
+  encoder_hidden_dims: 64
+
+contact_encoder:
+  input_dims: 1024
+  output_dims: 1
+  encoder_hidden_dims1: 256
+  encoder_hidden_dims2: 64
+
+denoised_model:
+  d_model: 1024
+  n_layers: 6
+
+homo_denoised_model:
+  d_model: 1024
+  n_layers: 6

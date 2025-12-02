@@ -1,0 +1,62 @@
+use_cuda: true
+evaluate: true
+resume: "./diffip_weights/checkpoint_1000.pth.tar"
+gpu:
+  visible_devices: "0"
+
+data:
+  data_root: "../human_video_data"
+  num_workers: 4
+  interval: 1
+  intrinsics:
+    fx: 745.77929688
+    fy: 745.3269043
+    ox: 628.28448486
+    oy: 364.4375
+    w: 1280
+    h: 720
+  max_depth: 1
+  max_frames: 40
+  voxel_resolution: 0.02
+  grid_size: 50
+  origin_xyz: [-0.5, -0.5, 0.0]
+  train_splits_file: "./data_utils/train_split.txt"
+  test_splits_file: "./data_utils/test_split.txt"
+  contact_label_file: "./data_utils/date_folders.csv"
+  feats_path: "../vision_features"
+  traj_path: "../hand_trajs"
+
+train:
+  manual_seed: 123
+  epochs: 1500
+  warmup_epochs: 0
+  snapshot: 500
+  batch_size: 64
+  lr: 0.00005
+  scheduler: "cosine"
+  lr_decay_step: 10
+  lr_decay_gamma: 0.5
+  loss_weights: [0.2, 0.01, 1.0]
+
+eval:
+  unseen_envs: false  # deprecated
+  batch_size: 1
+  gap: 9  # set gap=1 for better stability, set gap=9 for higher efficiency
+  smooth_window: 3
+  
+save:
+  output_dir: "./collected_pred"
+  save_traj: true
+
+viz:
+  pred_base: "collected_pred/finger0/seed1/"
+  contact_pred_path: "collected_pred/finger0/contact_time_pred/"
+  gt_base: "collected_pred/finger0/saved_gt_future/"
+  contact_gt_path: "collected_pred/finger0/contact_time_gt/"
+  wrist_pixel: [1073, 308, 632]
+  grasp_pixel: [908, 318, 687]
+  trajectory:
+    sphere_radius: 0.01
+    highlight_radius: 0.015
+    line_sphere_radius: 0.004
+    line_density: 30
