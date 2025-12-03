@@ -250,6 +250,7 @@ class TrainEvalLoop:
             schedule_sampler=None,
             homo_schedule_sampler=None,
             resume=None,
+            use_os_weights=True,
             save_pred=False,
             output_dir=None,
             loss_weights=None,
@@ -284,7 +285,7 @@ class TrainEvalLoop:
             if os.path.exists(resume):
                 state_dict_name = attr_name + "_state_dict"
                 # TODO: update weight keys 
-                if "vision" in state_dict_name:
+                if "vision" in state_dict_name and use_os_weights:
                     state_dict_name = state_dict_name.replace("vision", "glip")
                 self.start_epoch = modelio.load_checkpoint_by_name(
                     getattr(self, attr_name), 

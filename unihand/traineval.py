@@ -123,6 +123,7 @@ def main(model_cfg, train_cfg, eval_cfg, data_cfg, common_cfg):
         snapshot=train_cfg["snapshot"],
         gap=eval_cfg["gap"],
         smooth_window=eval_cfg["smooth_window"],
+        use_os_weights=eval_cfg["use_os_weights"],
         max_frames=data_cfg["max_frames"],
         save_pred=common_cfg["save"]["save_traj"],
         evaluate=common_cfg["evaluate"],

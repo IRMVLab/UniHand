@@ -40,6 +40,7 @@ train:
 
 eval:
   unseen_envs: false  # deprecated
+  use_os_weights: true
   batch_size: 1
   gap: 9  # set gap=1 for better stability, set gap=9 for higher efficiency
   smooth_window: 3
