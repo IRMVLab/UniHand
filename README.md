@@ -16,6 +16,7 @@ If any bugs are spotted or any download links are broken, please do not hesitate
 ## News!
 
 **[2026-02]** Add SAM-3D-Body support to Uni-Hand.
+
 **[2025-12]** Release the initial version of Uni-Hand.
 
 
