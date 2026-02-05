@@ -13,6 +13,12 @@
 
 If any bugs are spotted or any download links are broken, please do not hesitate to make a PR or open an issue.
 
+## News!
+
+**[2026-02]** Add SAM-3D-Body support to Uni-Hand.
+**[2025-12]** Release the initial version of Uni-Hand.
+
+
 <img src="./docs/transfer_paradigm_trimmed.gif" width="100%">
 
 
@@ -49,6 +55,7 @@ git clone https://github.com/geopavlakos/hamer.git
 
 # Optional
 git clone https://github.com/facebookresearch/sam-3d-body.git
+# install sam-3d-body following its instruction
 # replace sam-3d-body/sam_3d_body_estimator.py with preprocess_human_video/sam_3d_body_estimator.py in our repo
 
 git clone https://github.com/facebookresearch/dinov2.git
