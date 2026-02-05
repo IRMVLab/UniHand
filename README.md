@@ -40,12 +40,16 @@ pip install -r requirements.txt
 <details>
 <summary>:wrench: Clone HaMeR/SAM-3D-Body and DINOv2 for data preprocessing. (optional) <strong>[Click to expand]</strong></summary>
 
-Since we use HaMeR for hand motion extraction and DINOv2 for vision feature extraction, we need to clone them in this project. We also recommend using [SAM-3D-Body](https://github.com/facebookresearch/sam-3d-body), and its related tutorial for Uni-Hand is coming soon.
+Since we use HaMeR for hand motion extraction and DINOv2 for vision feature extraction, we need to clone them in this project. We also recommend using [SAM-3D-Body](https://github.com/facebookresearch/sam-3d-body).
 
 ```
 git clone https://github.com/geopavlakos/hamer.git
 # install HaMeR following its instruction
 # replace hamer/datasets/vitdet_dataset.py with preprocess_human_video/vitdet_dataset.py in our repo
+
+# Optional
+git clone https://github.com/facebookresearch/sam-3d-body.git
+# replace sam-3d-body/sam_3d_body_estimator.py with preprocess_human_video/sam_3d_body_estimator.py in our repo
 
 git clone https://github.com/facebookresearch/dinov2.git
 # install DINOv2 following its instruction
@@ -93,14 +97,29 @@ git clone https://github.com/facebookresearch/dinov2.git
 
 <details>
 <summary>&#x1F4C1 Extract and refine 3D hand trajectories. <strong>[Click to expand]</strong></summary>
-First, we extract raw 3D hand trajectories from human videos, with the help of HaMeR.
+First, we extract raw 3D hand trajectories from human videos, with the help of HaMeR or SAM-3D-Body.
 
 ```
-cp preprocess_human_video/extract_hand_keypoints.py ./hamer
+# with HaMeR
+cp preprocess_human_video/extract_hand_keypoints_hamer.py ./hamer
 cd hamer
-python extract_hand_keypoints.py \
+python extract_hand_keypoints_hamer.py \
     --img_folder ../human_video_data \
     --out_folder ../hand_keypoints \
+
+# with SAM-3D-Body
+cp preprocess_human_video/extract_hand_keypoints_sam3d_body.py ./sam-3d-body
+cd sam-3d-body
+python extract_hand_keypoints_sam3d_body.py \
+    --img_folder ../human_video_data \
+    --out_folder ../hand_keypoints_sam3d_crop \
+    --sam3d_checkpoint ../sam-3d-body/checkpoints/sam-3d-body-dinov3/model.ckpt \
+    --sam3d_mhr_path ../sam-3d-body/checkpoints/sam-3d-body-dinov3/assets/mhr_model.pt \
+    --draw_on_crop \
+    --save_bbox \
+    --seq_order name \
+    --draw_on_full
+
 cd ../preprocess_human_video
 python generate_hand_trajs.py \
     --input_root ../human_video_data \
