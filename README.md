@@ -233,8 +233,8 @@ python viz_predicted_trajs.py
 | Dataset | Open-Door | Human videos with annotations | [Download](https://pan.sjtu.edu.cn/web/share/0a1b2d35240b75ac8db6064ea32304e8) |
 | Model | Pick-and-Place | HaMeR for Hand Det. | [Download](https://pan.sjtu.edu.cn/web/share/4cfa8b4fe54b4187c393135cb8562fd7) |
 | Model | Open-Door | HaMeR for Hand Det. | [Download](https://pan.sjtu.edu.cn/web/share/b409876b22d5d6edf78ca6bb42e9229b) |
-| Model | Pick-and-Place | SAM-3D-Body for Hand Det. | [Download](https://pan.sjtu.edu.cn/web/share/4cfa8b4fe54b4187c393135cb8562fd7) |
-| Model | Open-Door | SAM-3D-Body for Hand Det. | [Download](https://pan.sjtu.edu.cn/web/share/b409876b22d5d6edf78ca6bb42e9229b) |
+| Model | Pick-and-Place | SAM-3D-Body for Hand Det. (coming soon) | [Download]() |
+| Model | Open-Door | SAM-3D-Body for Hand Det.  (coming soon) | [Download]() |
 
 * We have put the [train](https://pan.sjtu.edu.cn/web/share/3ae909c9dfb865f04b11973dedf766e0)/[test](https://pan.sjtu.edu.cn/web/share/e0d87213cca8db3f5c398e3098780016) splits and [contact/separation labels](https://pan.sjtu.edu.cn/web/share/9421c56ce687119ad67c14af6fc58aa6) of the pick-and-place task under the `unihand/data_utils` folder. For the open-door task, please refer to this [link](https://pan.sjtu.edu.cn/web/share/0a1b2d35240b75ac8db6064ea32304e8).
 
