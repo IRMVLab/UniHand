@@ -81,15 +81,15 @@ git clone https://github.com/facebookresearch/dinov2.git
         |-- 2025-0723-07-17-46
         |-- 2025-0723-07-17-52
         |-- 2025-0723-07-17-59
-        |-- depth
-            |-- 000000.npy
-            |-- 000001.npy
-            |-- ...
-        |-- rgb
-            |-- 000000.npy
-            |-- 000001.npy
-            |-- ...
-        |-- 2025-0723-07-17-59_point_cloud.ply
+            |-- depth
+                |-- 000000.npy
+                |-- 000001.npy
+                |-- ...
+            |-- rgb
+                |-- 000000.npy
+                |-- 000001.npy
+                |-- ...
+            |-- 2025-0723-07-17-59_point_cloud.ply
     |-- hand_keypoints # auto generated or downloaded
     |-- hand_trajs # auto generated or downloaded
     |-- vision_features # auto generated or downloaded
