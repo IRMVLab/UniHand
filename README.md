@@ -234,10 +234,12 @@ python viz_predicted_trajs.py
 | Model | Pick-and-Place | HaMeR for Hand Det. | [Download](https://pan.sjtu.edu.cn/web/share/4cfa8b4fe54b4187c393135cb8562fd7) |
 | Model | Open-Door | HaMeR for Hand Det. | [Download](https://pan.sjtu.edu.cn/web/share/b409876b22d5d6edf78ca6bb42e9229b) |
 | Model | Pick-and-Place | SAM-3D-Body for Hand Det. | [Download](https://pan.sjtu.edu.cn/web/share/600ac65b171b03f853fd3eb55b8a1622) |
-| Model | Open-Door | SAM-3D-Body for Hand Det.  (coming soon) | [Download]() |
+| Model | Open-Door | SAM-3D-Body for Hand Det.  | [Download](https://pan.sjtu.edu.cn/web/share/5302ff69cc0c4797ef9c66a1c68b1c1f) |
 
 * We have put the [train](https://pan.sjtu.edu.cn/web/share/3ae909c9dfb865f04b11973dedf766e0)/[test](https://pan.sjtu.edu.cn/web/share/e0d87213cca8db3f5c398e3098780016) splits and [contact/separation labels](https://pan.sjtu.edu.cn/web/share/9421c56ce687119ad67c14af6fc58aa6) of the pick-and-place task under the `unihand/data_utils` folder. For the open-door task, please refer to this [link](https://pan.sjtu.edu.cn/web/share/0a1b2d35240b75ac8db6064ea32304e8).  
 * We empirically found that SAM-3D-Body produces jittered trajectory labels with its hand branch in our cases, leading to worse predictions. We are figuring out a smooth mechanism to deal with this issue.
+* We sincerely appreciate [Yutong Dong](https://github.com/venicerae) for debugging Uni-Hand and developing the SAM-3D-Body version.
+
 
 </details>
 
