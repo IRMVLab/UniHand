@@ -23,6 +23,24 @@ If any bugs are spotted or any download links are broken, please do not hesitate
 
 <img src="./docs/transfer_paradigm_trimmed.gif" width="100%">
 
+## Contents
+
+- [Install Uni-Hand](#install-uni-hand)
+  - [Prepare a conda environment](#prepare-a-conda-environment)
+  - [Clone HaMeR/SAM-3D-Body and DINOv2 (optional)](#clone-hamer-sam-3d-body-and-dinov2-optional)
+- [Prepare Human Video Data](#prepare-human-video-data)
+  - [Recommended data structure](#recommended-data-structure)
+  - [Extract and refine 3D hand trajectories](#extract-and-refine-3d-hand-trajectories)
+  - [Label hand-object contact and separation timestamps](#label-hand-object-contact-and-separation-timestamps)
+  - [Extract vision features](#extract-vision-features)
+- [Run Uni-Hand](#run-uni-hand)
+  - [Train and evaluate](#train-and-evaluate)
+  - [Visualize predicted end-effector trajectories](#visualize-predicted-end-effector-trajectories)
+- [Download Human Videos and Pretrained Models](#download-human-videos-and-pretrained-models)
+- [Deploy on Your Own Robot](#deploy-on-your-own-robot)
+- [Cite Our Work](#cite-our-work)
+- [License](#license)
+
 ## Install Uni-Hand
 
 ### Prepare a conda environment
