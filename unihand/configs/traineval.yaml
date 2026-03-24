@@ -54,8 +54,8 @@ viz:
   contact_pred_path: "collected_pred/finger0/contact_time_pred/"
   gt_base: "collected_pred/finger0/saved_gt_future/"
   contact_gt_path: "collected_pred/finger0/contact_time_gt/"
-  wrist_pixel: [1073, 308, 632]
-  grasp_pixel: [908, 318, 687]
+  wrist_pixel: [1073, 308, 632]  # for open door: [786.36804, 174.70251, 468.]
+  grasp_pixel: [908, 318, 687] # for open door: [598.0314,  164.70251, 435.]
   trajectory:
     sphere_radius: 0.01
     highlight_radius: 0.015
