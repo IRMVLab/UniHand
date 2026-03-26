@@ -9,6 +9,7 @@ This file contains how to build diffusion models, encoders, and decoders for Uni
 from denoising_diffusion import gaussian_diffusion as gd
 from denoising_diffusion.gaussian_diffusion import SpacedDiffusion, space_timesteps
 from denoising_diffusion.denoising_models import HOIMamba_homo, HOIMambaTransformer
+from denoising_diffusion.trajectory_dit import TrajectoryDiT
 from denoising_diffusion.networks import PreEncoder, MotionEncoder, LocEncoder, GLIPEncoder, VoxelEncoder, OccFeatEncoder, PostEncoder, ContactEncoder
 
 def create_model_and_diffusion(
@@ -83,10 +84,30 @@ def create_model_and_diffusion(
         encoder_hidden_dims2=contact_enc_cfg.get("encoder_hidden_dims2", 64)
     )
 
-    denoised_model = HOIMambaTransformer(
-        d_model=denoise_cfg.get("d_model", 1024),
-        n_layers=denoise_cfg.get("n_layers", 6)
-    )
+    denoise_arch = denoise_cfg.get("arch", "trajectory_dit")
+    if denoise_arch == "trajectory_dit":
+        denoised_model = TrajectoryDiT(
+            input_dims=denoise_cfg.get("input_dims", 3),
+            output_dims=denoise_cfg.get("output_dims", 3),
+            cond_dims=denoise_cfg.get("cond_dims", 1024),
+            occ_cond_dims=denoise_cfg.get("occ_cond_dims", 1024),
+            d_model=denoise_cfg.get("d_model", 512),
+            n_layers=denoise_cfg.get("n_layers", 6),
+            n_heads=denoise_cfg.get("n_heads", 8),
+            hidden_t_dim=denoise_cfg.get("hidden_t_dim", 256),
+            max_seq_len=denoise_cfg.get("max_seq_len", 40),
+            max_occ_tokens=denoise_cfg.get("max_occ_tokens", 64),
+            n_cond_layers=denoise_cfg.get("n_cond_layers", 2),
+            dropout=denoise_cfg.get("dropout", 0.1),
+            attn_dropout=denoise_cfg.get("attn_dropout", 0.1),
+        )
+    elif denoise_arch == "mamba_transformer":
+        denoised_model = HOIMambaTransformer(
+            d_model=denoise_cfg.get("d_model", 1024),
+            n_layers=denoise_cfg.get("n_layers", 6)
+        )
+    else:
+        raise ValueError(f"Unsupported denoised_model arch: {denoise_arch}")
 
 
     betas = gd.get_named_beta_schedule(noise_schedule, diffusion_steps)

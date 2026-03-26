@@ -211,13 +211,21 @@ def get_traj_observed(traj_all, num_ratios, mask_o):
 
 def get_masks(batch_size, max_frames, nframes, device):
     """
-    Generate observation and unobserved masks for trajectory
+    Generate observation and unobserved masks for trajectory.
     """
     mask_o = torch.zeros((batch_size, 1, max_frames)).to(device, non_blocking=True)
     mask_u = torch.zeros((batch_size, 1, max_frames)).to(device, non_blocking=True)
     last_frames = torch.zeros((batch_size, 1)).long()
-    mask_o[:, :, 0] = 1
-    mask_u[:, :, 1:] = 1
+
+    for batch_idx in range(batch_size):
+        valid_frames = int(nframes[batch_idx])
+        if valid_frames <= 0:
+            continue
+        mask_o[batch_idx, :, 0] = 1
+        if valid_frames > 1:
+            mask_u[batch_idx, :, 1:valid_frames] = 1
+        last_frames[batch_idx, 0] = 0
+
     return mask_o, mask_u, last_frames
 
 
@@ -352,6 +360,54 @@ class TrainEvalLoop:
         loc_feat = self.loc_encoder(traj_input)
         return loc_feat
 
+    def _encode_occ_features(self, voxel_feats_raw):
+        voxel_feats_raw = voxel_feats_raw.unsqueeze(1).to(dist_util.dev())
+        voxel_feats_all_space = self.voxel_encoder(voxel_feats_raw)
+        voxel_feats_all_space = voxel_feats_all_space.squeeze(1)
+        voxel_feats_all_space = voxel_feats_all_space.view(
+            voxel_feats_all_space.shape[0],
+            voxel_feats_all_space.shape[1],
+            -1,
+        ).contiguous()
+        voxel_feats_all_space = voxel_feats_all_space.permute(0, 2, 1)
+        occ_feat_encoded = self.occ_feat_encoder(voxel_feats_all_space.contiguous())
+        return occ_feat_encoded
+
+    def _build_condition_bundle(self, traj_all, nframes, vision_feat_first, occ_feat_encoded):
+        batch_size, max_frames = traj_all.size(0), traj_all.size(1)
+        vision_feat_first = vision_feat_first.to(dist_util.dev())
+        vision_feat_first_expanded = vision_feat_first.unsqueeze(1).expand(-1, max_frames, -1).contiguous()
+        vision_feat = self.vision_encoder(vision_feat_first_expanded)
+
+        mask_o, mask_u, last_obs_frames = get_masks(batch_size, max_frames, nframes, dist_util.dev())
+        mask_o_for_input = rearrange(mask_o, 'b n t -> (b n) t')
+        mask_u_for_input = rearrange(mask_u, 'b n t -> (b n) t')
+        valid_mask = (mask_o_for_input + mask_u_for_input).clamp(max=1)
+
+        # Only expose observed trajectory tokens to the condition encoder.
+        past_loc_feats = self._get_loc_features(traj_all, 1, mask_o_for_input)
+
+        temporal_condition = torch.stack((vision_feat, past_loc_feats), dim=2)
+        temporal_condition = temporal_condition.view(*temporal_condition.shape[0:2], -1)
+        temporal_condition = torch.cat((temporal_condition, mask_o_for_input.unsqueeze(-1)), dim=2)
+        temporal_condition = self.pre_encoder(temporal_condition)
+
+        condition_bundle = {
+            "temporal_cond": temporal_condition,
+            "occ_cond": occ_feat_encoded,
+            "observed_mask": mask_o_for_input.float(),
+        }
+        return condition_bundle, temporal_condition, valid_mask, mask_o_for_input, mask_u_for_input, last_obs_frames
+
+    def _initialize_sampling_trajectory(self, traj_all, mask_u_for_input, valid_mask):
+        sampling_traj = traj_all.clone()
+        future_mask = mask_u_for_input.bool().unsqueeze(-1).expand_as(sampling_traj)
+        sampling_traj = torch.where(future_mask, torch.randn_like(sampling_traj), sampling_traj)
+
+        invalid_mask = (~valid_mask.bool()).unsqueeze(-1).expand_as(sampling_traj)
+        sampling_traj = torch.where(invalid_mask, torch.zeros_like(sampling_traj), sampling_traj)
+        return sampling_traj
+
     def run_loop(self):
         """
         Main training/evaluation loop
@@ -394,66 +450,46 @@ class TrainEvalLoop:
                 contact_time = contact_time.to(dist_util.dev())
 
                 # Process voxel features
-                voxel_feats_raw = voxel_feats_raw.unsqueeze(1).to(dist_util.dev())
-                voxel_feats_all_space = self.voxel_encoder(voxel_feats_raw)
-                voxel_feats_all_space = voxel_feats_all_space.squeeze(1)
-                voxel_feats_all_space = voxel_feats_all_space.view(voxel_feats_all_space.shape[0], voxel_feats_all_space.shape[1], -1).contiguous()
-                voxel_feats_all_space = voxel_feats_all_space.permute(0,2,1)
-                occ_feat_encoded = self.occ_feat_encoder(voxel_feats_all_space.contiguous())
+                occ_feat_encoded = self._encode_occ_features(voxel_feats_raw)
 
                 # Process trajectory data
                 traj3d_sampled = traj3d_sampled.to(dist_util.dev())
                 traj_gt_wrist = traj3d_sampled[:, :, 0:1, :]
                 traj_gt_3 = traj_gt_wrist  # TODO: add multi-finger
 
-                motion_feats_raw = motion_feat_sampled
-                vision_feat_first = vision_feat_first.to(dist_util.dev())  
-                vision_feat_first_expanded = vision_feat_first.unsqueeze(1).expand(-1, self.max_frames, -1).contiguous()
-
                 # Process each finger
                 for finger_index in range(traj_gt_3.shape[2]):
                     traj_gt = traj_gt_3[:, :, finger_index, :]
 
-                    batch_size, max_frames = traj_gt.size(0), traj_gt.size(1)
-                    motion_feats_raw = motion_feats_raw.view(motion_feats_raw.shape[0], motion_feats_raw.shape[1], 3*3)
-                    motion_feat_encoded = self.motion_encoder(motion_feats_raw)   
-                    vision_feat_first_expanded = vision_feat_first_expanded.to(dist_util.dev())
-                    vision_feat = self.vision_encoder(vision_feat_first_expanded)
-
                     self.output_size = 3
-                    max_frames = vision_feat.shape[1]
                     traj_all = traj_gt[:, :, :self.output_size]
-                    mask_o, mask_u, last_obs_frames = get_masks(batch_size, max_frames, nframes, dist_util.dev())
-                    mask_o_for_input = rearrange(mask_o, 'b n t -> (b n) t')
-                    mask_u_for_input = rearrange(mask_u, 'b n t -> (b n) t')
+                    (
+                        condition_bundle,
+                        temporal_condition,
+                        valid_mask,
+                        mask_o_for_input,
+                        mask_u_for_input,
+                        last_obs_frames,
+                    ) = self._build_condition_bundle(
+                        traj_all=traj_all,
+                        nframes=nframes,
+                        vision_feat_first=vision_feat_first,
+                        occ_feat_encoded=occ_feat_encoded,
+                    )
 
-                    mask_ou_for_input = mask_o_for_input + mask_u_for_input
-                    all_loc_feats = self._get_loc_features(traj_all, 1, mask_ou_for_input)
-
-                    assert (torch.sum(mask_u_for_input[0]==1)+torch.sum(mask_o_for_input[0]==1)) == torch.sum(mask_ou_for_input[0]==1)
-
-                    # Create finger indicator
-                    finger_flag = torch.zeros(vision_feat.shape[0], vision_feat.shape[1], traj_gt_3.shape[2]).to(dist_util.dev())
-                    finger_flag[:, :, finger_index] = 1.0
-
-                    # Combine features
-                    right_feat = torch.stack((vision_feat, all_loc_feats), dim=2)
-                    right_feat = right_feat.view(*right_feat.shape[0:2], -1)
-                    right_feat = torch.cat((right_feat, finger_flag), dim=2)
-
-                    right_feat_encoded = self.pre_encoder(right_feat)
+                    assert (torch.sum(mask_u_for_input[0] == 1) + torch.sum(mask_o_for_input[0] == 1)) == torch.sum(valid_mask[0] == 1)
 
                     # Diffusion process
-                    t, weights = self.schedule_sampler.sample(vision_feat.shape[0], dist_util.dev()) 
+                    t, weights = self.schedule_sampler.sample(traj_all.shape[0], dist_util.dev())
 
                     compute_losses = functools.partial(
                         self.diffusion.training_losses,
                         self.model_denoise,
                         self.post_encoder,
-                        [right_feat_encoded, right_feat_encoded],
+                        [traj_all, traj_all],
                         t,
-                        [mask_ou_for_input, mask_o_for_input, mask_u_for_input],
-                        [motion_feat_encoded,occ_feat_encoded],
+                        [valid_mask, mask_o_for_input, mask_u_for_input],
+                        condition_bundle,
                     )
 
                     loss_feat_dict = compute_losses()
@@ -461,14 +497,13 @@ class TrainEvalLoop:
                     rec_feature_r = loss_feat_dict["rec_feature_r"]
 
                     future_feature = rec_feature_r
-                    pred_future_traj = self.post_encoder(future_feature)
-                    pred_future_traj_r = pred_future_traj
+                    pred_future_traj_r = future_feature
 
-                    broaded_future_mask = torch.broadcast_to(mask_ou_for_input.unsqueeze(dim=-1), traj_gt.shape)
+                    broaded_future_mask = torch.broadcast_to(valid_mask.unsqueeze(dim=-1), traj_gt.shape)
 
                     # Vanilla loss calculation
                     vanilla_loss_weight = self.loss_weights[0]
-                    vanilla_future_traj_r = self.post_encoder(right_feat_encoded.contiguous())
+                    vanilla_future_traj_r = self.post_encoder(temporal_condition.contiguous())
                     vanilla_future_traj_r_masked = vanilla_future_traj_r * broaded_future_mask
                     traj_gt_masked = traj_gt * broaded_future_mask
                     vanilla_r_loss = torch.sum((vanilla_future_traj_r_masked - traj_gt_masked) ** 2, dim=-1)
@@ -573,53 +608,33 @@ class TrainEvalLoop:
             else:  # Evaluation mode
                 traj3d_sampled, vision_feat_sampled, motion_feat_sampled, nframes, filename, valid_frame_index, vision_feat_first, voxel_feats_raw, contact_time = sample
 
-                voxel_feats_raw = voxel_feats_raw.to(dist_util.dev())
-                voxel_feats_raw = voxel_feats_raw.unsqueeze(1)
-                voxel_feats_all_space = self.voxel_encoder(voxel_feats_raw)
-                voxel_feats_all_space = voxel_feats_all_space.squeeze(1)
-                voxel_feats_all_space = voxel_feats_all_space.view(voxel_feats_all_space.shape[0], voxel_feats_all_space.shape[1], -1).contiguous()
-                voxel_feats_all_space = voxel_feats_all_space.permute(0,2,1)
-                occ_feat_encoded = self.occ_feat_encoder(voxel_feats_all_space.contiguous())
+                occ_feat_encoded = self._encode_occ_features(voxel_feats_raw)
 
                 traj3d_sampled = traj3d_sampled.to(dist_util.dev())
                 traj_gt_wrist = traj3d_sampled[:, :, 0:1, :]
                 traj_gt_3 = traj_gt_wrist # TODO: add multi-finger
 
-                motion_feats_raw = motion_feat_sampled
-                vision_feat_first = vision_feat_first.to(dist_util.dev())  
-                vision_feat_first_expanded = vision_feat_first.unsqueeze(1).expand(-1, self.max_frames, -1).contiguous()
-
                 # Process each finger
                 for finger_index in range(traj_gt_3.shape[2]):
                     traj_gt = traj_gt_3[:, :, finger_index, :]
 
-                    batch_size, max_frames = traj_gt.size(0), traj_gt.size(1)
-
-                    motion_feats_raw = motion_feats_raw.view(motion_feats_raw.shape[0], motion_feats_raw.shape[1], 3*3)
-                    motion_feat_encoded = self.motion_encoder(motion_feats_raw)   
-
-                    vision_feat = self.vision_encoder(vision_feat_first_expanded)
-
-                    finger_flag = torch.zeros(vision_feat.shape[0], vision_feat.shape[1], traj_gt_3.shape[2]).to(dist_util.dev())
-                    finger_flag[:, :, finger_index] = 1.0
-        
                     self.output_size = 3
-                    max_frames = vision_feat.shape[1]
                     traj_all = traj_gt[:, :, :self.output_size]
-                    mask_o, mask_u, last_obs_frames = get_masks(batch_size, max_frames, nframes, dist_util.dev())
-                    mask_o_for_input = rearrange(mask_o, 'b n t -> (b n) t')
-                    mask_u_for_input = rearrange(mask_u, 'b n t -> (b n) t')
+                    (
+                        condition_bundle,
+                        _,
+                        valid_mask,
+                        mask_o_for_input,
+                        mask_u_for_input,
+                        last_obs_frames,
+                    ) = self._build_condition_bundle(
+                        traj_all=traj_all,
+                        nframes=nframes,
+                        vision_feat_first=vision_feat_first,
+                        occ_feat_encoded=occ_feat_encoded,
+                    )
 
-                    mask_ou_for_input = mask_o_for_input + mask_u_for_input
-                    all_loc_feats = self._get_loc_features(traj_all, 1, mask_ou_for_input)
-
-                    assert (torch.sum(mask_u_for_input[0]==1)+torch.sum(mask_o_for_input[0]==1)) == torch.sum(mask_ou_for_input[0]==1)
-
-                    right_feat = torch.stack((vision_feat, all_loc_feats), dim=2)
-                    right_feat = right_feat.view(*right_feat.shape[0:2], -1)
-                    right_feat = torch.cat((right_feat, finger_flag), dim=2)
-
-                    right_feat_encoded = self.pre_encoder(right_feat)                
+                    assert (torch.sum(mask_u_for_input[0] == 1) + torch.sum(mask_o_for_input[0] == 1)) == torch.sum(valid_mask[0] == 1)
 
                     sample_fn = (
                         self.diffusion.p_sample_loop
@@ -631,41 +646,39 @@ class TrainEvalLoop:
 
                         # Sample multiple times
                         for sample_idx in range(1):  # TODO: Multi-sample
-                            for lo in range(len_observation.shape[0]):
-                                nframes_this_b = int(nframes[lo])
-                                nfuture = int(nframes_this_b - len_observation[lo])
-                                pseudo_future = torch.zeros((nfuture,1024))
-                                noise_r = torch.randn_like(pseudo_future).to(dist_util.dev())
-                                right_feat_encoded[lo, len_observation[lo]:nframes_this_b, :] = noise_r
+                            sampling_traj = self._initialize_sampling_trajectory(
+                                traj_all=traj_all,
+                                mask_u_for_input=mask_u_for_input,
+                                valid_mask=valid_mask,
+                            )
 
-                            sample_shape = (right_feat_encoded.shape[0], right_feat_encoded.shape[1], right_feat_encoded.shape[2])
+                            sample_shape = sampling_traj.shape
 
                             model_kwargs = {}
                             print("denoising ...")
 
-                            start_idx = 0
                             samples_r = sample_fn(
                                 model_denoise=self.model_denoise,
                                 shape=sample_shape,
-                                noise=[right_feat_encoded[:,start_idx:,...], right_feat_encoded[:,start_idx:,...]],
-                                motion_feat_encoded=[motion_feat_encoded[:,start_idx:,...],occ_feat_encoded[:,start_idx:,...]],
+                                noise=[sampling_traj, sampling_traj],
+                                motion_feat_encoded=condition_bundle,
                                 clip_denoised=False,
                                 model_kwargs=model_kwargs,
                                 clamp_step=0,
                                 clamp_first=True,
-                                x_start=[right_feat_encoded, right_feat_encoded],
+                                x_start=[traj_all, traj_all],
                                 gap=self.infer_gap,
                                 device=dist_util.dev(),
-                                valid_mask = [mask_ou_for_input, mask_o_for_input, mask_u_for_input],
+                                valid_mask=[valid_mask, mask_o_for_input, mask_u_for_input],
                             )
 
                             samples_r = samples_r[-1]
-                            pred_future_traj = self.post_encoder(samples_r)
-                            pred_contact_point = self.contact_encoder(samples_r)
+                            pred_future_traj = samples_r
+                            pred_contact_point = self.contact_encoder(samples_r)[:, :, 0]
 
                             # Smooth predictions
                             kernel_size = self.smooth_window
-                            kernel = torch.ones(1, 1, kernel_size, dtype=torch.float32, device="cuda") / kernel_size
+                            kernel = torch.ones(1, 1, kernel_size, dtype=torch.float32, device=dist_util.dev()) / kernel_size
                             smoothed = []
                             for ixyz in range(3):
                                 channel_data = pred_future_traj[:, :, ixyz].unsqueeze(1)

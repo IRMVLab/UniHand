@@ -53,14 +53,26 @@ occ_feat_encoder:
   encoder_hidden_dims: 64
 
 contact_encoder:
-  input_dims: 1024
+  input_dims: 3
   output_dims: 1
   encoder_hidden_dims1: 256
   encoder_hidden_dims2: 64
 
 denoised_model:
-  d_model: 1024
+  arch: "trajectory_dit"
+  input_dims: 3
+  output_dims: 3
+  cond_dims: 1024
+  occ_cond_dims: 1024
+  d_model: 512
   n_layers: 6
+  n_heads: 8
+  hidden_t_dim: 256
+  max_seq_len: 40
+  max_occ_tokens: 64
+  n_cond_layers: 2
+  dropout: 0.1
+  attn_dropout: 0.1
 
 homo_denoised_model:
   d_model: 1024
