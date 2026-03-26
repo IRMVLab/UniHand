@@ -225,6 +225,7 @@ python viz_predicted_trajs.py
 |---------------|------|--------|------|
 | Dataset | Pick-and-Place | Human videos with annotations | [Download](https://pan.sjtu.edu.cn/web/share/8b4eff7f7b20ce1d8630b6ee70d357e2) |
 | Dataset | Open-Door | Human videos with annotations | [Download](https://pan.sjtu.edu.cn/web/share/0a1b2d35240b75ac8db6064ea32304e8) |
+| Dataset | Pick-and-Place | Depth estimated by DA3 | [Download](https://pan.sjtu.edu.cn/web/share/ca56dcf8ab86422dd5258a89d18cdbfd) |
 | Dataset | Open-Door | Depth estimated by DA3 | [Download](https://pan.sjtu.edu.cn/web/share/ca56dcf8ab86422dd5258a89d18cdbfd) |
 | Model | Pick-and-Place | HaMeR for Hand Det. | [Download](https://pan.sjtu.edu.cn/web/share/4cfa8b4fe54b4187c393135cb8562fd7) |
 | Model | Open-Door | HaMeR for Hand Det. | [Download](https://pan.sjtu.edu.cn/web/share/b409876b22d5d6edf78ca6bb42e9229b) |
