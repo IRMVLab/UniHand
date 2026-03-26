@@ -17,6 +17,7 @@ If any bugs are spotted or any download links are broken, please do not hesitate
 
 ## News
 
+- **[2026-03]** Add an DiT-based trajectory diffusion variant for Uni-Hand.
 - **[2026-03]** Release Uni-Hand's depth input from Depth Anything 3.
 - **[2026-02]** Add SAM-3D-Body support to Uni-Hand.
 - **[2025-12]** Release the initial version of Uni-Hand.
@@ -35,6 +36,7 @@ If any bugs are spotted or any download links are broken, please do not hesitate
   - [Extract vision features](#extract-vision-features)
 - [Run Uni-Hand](#run-uni-hand)
   - [Train and evaluate](#train-and-evaluate)
+  - [DiT trajectory diffusion variant](#dit-trajectory-diffusion-variant)
   - [Visualize predicted end-effector trajectories](#visualize-predicted-end-effector-trajectories)
 - [Download Human Videos and Pretrained Models](#download-human-videos-and-pretrained-models)
 - [Deploy on Your Own Robot](#deploy-on-your-own-robot)
@@ -198,6 +200,29 @@ bash run_unihand.sh
 - You can resume training from or evaluate a checkpoint by setting `resume` in `unihand/configs/traineval.yaml`. If you evaluate your model trained from scratch, set `use_os_weights` to `false` and set `resume` to a non-existent path.
 - We provide the pretrained model of Uni-Hand [here](https://pan.sjtu.edu.cn/web/share/4cfa8b4fe54b4187c393135cb8562fd7). Please set `use_os_weights` to `true` and test it.
 - Uni-Hand is robust to background variations thanks to the use of depth information.
+
+### DiT trajectory diffusion variant
+
+This workspace also contains an DiT-style trajectory diffusion version of Uni-Hand. Compared with the original release, this variant replaces the latent feature-space denoiser with a trajectory-space transformer denoiser and directly predicts 3D trajectories.
+
+- The denoiser is implemented in `unihand/denoising_diffusion/trajectory_dit.py`.
+- The diffusion sample is the trajectory itself (`3D -> 3D`), instead of a `1024`-dimensional latent feature.
+- The condition bundle is built from visual features, observed trajectory-location features, 3D occupancy features, and an observed-frame mask.
+- The main training/evaluation loop for this variant is in `unihand/netscripts/epoch_feat.py`.
+
+The default DiT configuration in this workspace is already reflected in:
+
+- `unihand/configs/model.yaml`
+- `unihand/configs/traineval.yaml`
+
+You can train and evaluate the DiT version with the same entry point as the original Uni-Hand:
+
+```bash
+cd unihand
+bash run_unihand.sh
+```
+
+Logs and checkpoints will be written to `unihand/log` and `unihand/diffip_weights`. 
 
 ### Visualize predicted end-effector trajectories
 

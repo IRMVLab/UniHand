@@ -1,0 +1,15 @@
+# Settings
+.vscode/
+
+# Dataset links
+hand_trajs
+human_video_data
+vision_features
+
+# Checkpoints and logs
+unihand/diffip_weights/*.pth.tar
+unihand/log/
+unihand/optimizer.pt
+
+# Python cache
+**/__pycache__/
