@@ -235,7 +235,7 @@ python viz_predicted_trajs.py
 - We empirically found that SAM-3D-Body produces jittered trajectory labels with its hand branch in our cases, leading to worse predictions. We are figuring out a smooth mechanism to deal with this issue.
 - The pseudo depth estimated by [Depth Anything 3](https://github.com/ByteDance-Seed/Depth-Anything-3) is also provided. Feel free to use it as alternative depth input of Uni-Hand.
 - We sincerely appreciate [Yutong Dong](https://github.com/venicerae) for debugging Uni-Hand and developing the SAM-3D-Body version.
-- We would also like to thank [Yunji Feng](https://blog.fengyunji.site/) for his efforts in developing a DiT-based trajectory diffusion variant for Uni-Hand. Please refer to [this branch](https://github.com/IRMVLab/UniHand/tree/baselines/DiT-version).
+- We would also like to thank [Yunji Feng](https://blog.fengyunji.site/) for his efforts in developing a DiT-based trajectory diffusion variant for Uni-Hand. Please refer to [this branch](https://github.com/IRMVLab/UniHand/tree/baselines/DiT-version) for more details.
 
 
 ## Deploy on Your Own Robot
