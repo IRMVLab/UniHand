@@ -263,14 +263,11 @@ This is the initial version of Uni-Hand, which has already provided an out-of-th
 If you find our work helpful to your research, we would appreciate it if you could cite our paper:
 
 ```bibtex
-@misc{ma2025unihand,
+@article{ma2026unihand,
     title={Uni-Hand: Universal Hand Motion Forecasting in Egocentric Views},
     author={Junyi Ma and Wentao Bao and Jingyi Xu and Guanzhong Sun and Yu Zheng and Erhang Zhang and Xieyuanli Chen and Hesheng Wang},
-    year={2025},
-    eprint={2511.12878},
-    archivePrefix={arXiv},
-    primaryClass={cs.CV},
-    url={https://arxiv.org/abs/2511.12878},
+    journal={IEEE Transactions on Pattern Analysis and Machine Intelligence},
+    year={2026},
 }
 ```
 
