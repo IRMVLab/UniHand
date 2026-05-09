@@ -17,6 +17,7 @@ If any bugs are spotted or any download links are broken, please do not hesitate
 
 ## News
 
+- **[2026-05]** Uni-Hand is accepted by T-PAMI!
 - **[2026-03]** Add a DiT-based trajectory diffusion variant for Uni-Hand.
 - **[2026-03]** Release Uni-Hand's depth input from Depth Anything 3.
 - **[2026-02]** Add SAM-3D-Body support to Uni-Hand.
