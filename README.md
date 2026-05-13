@@ -256,7 +256,7 @@ We have demonstrated the deployment of Uni-Hand on real robots. Please refer to 
 
 **Let your robot’s end-effector follow the trajectories predicted by Uni-Hand!** :robot:
 
-This is the initial version of Uni-Hand, which has already provided an out-of-the-box paradigm for human-video-based imitation learning. We will provide a more comprehensive version with multimodal inputs and additional downstream tasks, and release the heuristic grasp assumption once the paper is accepted.
+This is the initial version of Uni-Hand, which has already provided an out-of-the-box paradigm for human-video-based imitation learning. We will provide a more comprehensive version with multimodal inputs and additional downstream tasks, and relax the heuristic grasp assumption in four months.
 
 ## Cite Our Work
 
