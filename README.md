@@ -1,4 +1,4 @@
-# Uni-Hand: Universal Hand Motion Forecasting in Egocentric Views
+# [T-PAMI'26] Uni-Hand: Universal Hand Motion Forecasting in Egocentric Views
 
 [Junyi Ma](https://github.com/BIT-MJY)<sup>1</sup>, [Wentao Bao](https://cogito2012.github.io/homepage/)<sup>2</sup>, [Jingyi Xu](https://github.com/BIT-XJY)<sup>1</sup>, [Guanzhong Sun](https://github.com)<sup>3</sup>, [Yu Zheng](https://scholar.google.com/citations?user=M4cXM9kAAAAJ&hl=zh-CN)<sup>1</sup>, [Erhang Zhang](https://scholar.google.com/citations?user=j1mUqHEAAAAJ&hl=en)<sup>1</sup>, [Xieyuanli Chen](https://scholar.google.com/citations?user=DvrngV4AAAAJ&hl=zh-CN)<sup>4</sup>, [Hesheng Wang](https://scholar.google.com/citations?hl=en&user=q6AY9XsAAAAJ)<sup>1*</sup>
 
