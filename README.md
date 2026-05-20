@@ -279,7 +279,7 @@ python viz_predicted_trajs.py
 | Dataset | Pick-and-Place | Depth estimated by DA3 | [Download](https://pan.sjtu.edu.cn/web/share/ca56dcf8ab86422dd5258a89d18cdbfd) |
 | Dataset | Open-Door | Depth estimated by DA3 | [Download](https://pan.sjtu.edu.cn/web/share/ca56dcf8ab86422dd5258a89d18cdbfd) |
 | Model | Pick-and-Place | HaMeR for Hand Det., DINOv2 for Vision Feat. | [Download](https://pan.sjtu.edu.cn/web/share/4cfa8b4fe54b4187c393135cb8562fd7) |
-| Model | Pick-and-Place | HaMeR for Hand Det., V-JEPA 2 for Vision Feat. | [Download](xxxxxxxx) |
+| Model | Pick-and-Place | HaMeR for Hand Det., V-JEPA 2 for Vision Feat. | [Download](https://pan.sjtu.edu.cn/web/share/68438110181c600fb94d3de3794ef813) |
 | Model | Open-Door | HaMeR for Hand Det., DINOv2 for Vision Feat. | [Download](https://pan.sjtu.edu.cn/web/share/b409876b22d5d6edf78ca6bb42e9229b) |
 | Model | Pick-and-Place | SAM-3D-Body for Hand Det., DINOv2 for Vision Feat. | [Download](https://pan.sjtu.edu.cn/web/share/600ac65b171b03f853fd3eb55b8a1622) |
 | Model | Open-Door | SAM-3D-Body for Hand Det., DINOv2 for Vision Feat. | [Download](https://pan.sjtu.edu.cn/web/share/5302ff69cc0c4797ef9c66a1c68b1c1f) |
