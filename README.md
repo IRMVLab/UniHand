@@ -33,17 +33,19 @@
 ## 📚 Contents
 
 - [Install Uni-Hand](#install-uni-hand)
-  - [Prepare a conda environment](#prepare-a-conda-environment)
-  - [Clone HaMeR/SAM-3D-Body and DINOv2/V-JEPA 2 (optional)](#clone-hamersam-3d-body-and-dinov2v-jepa-2-optional)
+  - [Prepare a Conda Environment](#prepare-a-conda-environment)
+  - [Clone HaMeR/SAM-3D-Body and DINOv2/V-JEPA 2 (Optional)](#clone-hamersam-3d-body-and-dinov2v-jepa-2-optional)
 - [Prepare Human Video Data](#prepare-human-video-data)
-  - [Recommended data structure](#recommended-data-structure)
-  - [Extract and refine 3D hand trajectories](#extract-and-refine-3d-hand-trajectories)
-  - [Label hand-object contact and separation timestamps](#label-hand-object-contact-and-separation-timestamps)
-  - [Extract vision features](#extract-vision-features)
+  - [Recommended Data Structure](#recommended-data-structure)
+  - [Extract and Refine 3D Hand Trajectories](#extract-and-refine-3d-hand-trajectories)
+  - [Label Hand-Object Contact and Separation Timestamps](#label-hand-object-contact-and-separation-timestamps)
+  - [Extract Vision Features](#extract-vision-features)
 - [Run Uni-Hand](#run-uni-hand)
-  - [Train and evaluate](#train-and-evaluate)
-  - [Visualize predicted end-effector trajectories](#visualize-predicted-end-effector-trajectories)
+  - [Train and Evaluate](#train-and-evaluate)
+  - [Visualize Predicted End-Effector Trajectories](#visualize-predicted-end-effector-trajectories)
 - [Download Human Videos and Pretrained Models](#download-human-videos-and-pretrained-models)
+  - [Datasets](#datasets)
+  - [Uni-Hand Pretrained Checkpoints](#uni-hand-pretrained-checkpoints)
 - [Deploy on Your Own Robot](#deploy-on-your-own-robot)
 - [Cite Our Work](#cite-our-work)
 - [License](#license)
@@ -54,7 +56,7 @@
 
 <a id="prepare-a-conda-environment"></a>
 
-### Prepare a conda environment
+### Prepare a Conda Environment
 
 First, clone Uni-Hand:
 
@@ -78,7 +80,7 @@ pip install -r requirements.txt
 
 <a id="clone-hamersam-3d-body-and-dinov2v-jepa-2-optional"></a>
 
-### Clone HaMeR/SAM-3D-Body and DINOv2/V-JEPA 2 (optional)
+### Clone HaMeR/SAM-3D-Body and DINOv2/V-JEPA 2 (Optional)
 
 Since we use HaMeR for hand motion extraction and DINOv2 for vision feature extraction, we need to clone them in this project. We also recommend using [SAM-3D-Body](https://github.com/facebookresearch/sam-3d-body) and [V-JEPA 2](https://github.com/facebookresearch/vjepa2).
 
@@ -111,7 +113,7 @@ git clone https://github.com/facebookresearch/vjepa2.git
 
 <a id="recommended-data-structure"></a>
 
-### Recommended data structure
+### Recommended Data Structure
 
 ```text
 ./UniHand
@@ -141,7 +143,7 @@ git clone https://github.com/facebookresearch/vjepa2.git
 
 <a id="extract-and-refine-3d-hand-trajectories"></a>
 
-### Extract and refine 3D hand trajectories
+### Extract and Refine 3D Hand Trajectories
 
 First, we extract raw 3D hand trajectories from human videos, with the help of HaMeR or SAM-3D-Body.
 
@@ -190,7 +192,7 @@ You can indicate the joint index you want to visualize.
 
 <a id="label-hand-object-contact-and-separation-timestamps"></a>
 
-### Label hand-object contact and separation timestamps
+### Label Hand-Object Contact and Separation Timestamps
 
 - Contact/separation timestamps are crucial for training Uni-Hand, since trajectory data alone is insufficient to generate the gripper’s grasping actions. Please refer to [our paper](https://arxiv.org/pdf/2511.12878) for more details.
 - ⚡ We have provided the [contact/separation labels](https://pan.sjtu.edu.cn/web/share/9421c56ce687119ad67c14af6fc58aa6) of the toy dataset under the `unihand/data_utils` folder. You can manually label the timings of your own videos and organize them as `date_folders.csv`.
@@ -198,7 +200,7 @@ You can indicate the joint index you want to visualize.
 
 <a id="extract-vision-features"></a>
 
-### Extract vision features
+### Extract Vision Features
 
 Here we use DINOv2 to extract vision features, while you can also replace it with any other visual foundation models.
 
@@ -231,7 +233,7 @@ python extract_visual_features_vjepa2.py \
 
 <a id="train-and-evaluate"></a>
 
-### Train and evaluate
+### Train and Evaluate
 
 To train Uni-Hand, set `evaluate` to `false` in `unihand/configs/traineval.yaml`, and run:
 
@@ -247,7 +249,7 @@ bash run_unihand.sh
 
 <a id="visualize-predicted-end-effector-trajectories"></a>
 
-### Visualize predicted end-effector trajectories
+### Visualize Predicted End-Effector Trajectories
 
 After evaluation, you can visualize end-effector trajectories. As in this demo, we predict hand wrist trajectories for robotic manipulation, and a heuristic grasp offset is used to convert the predicted wrist waypoints to end-effector trajectories.
 
@@ -272,6 +274,8 @@ python viz_predicted_trajs.py
 
 ## 📦 Download Human Videos and Pretrained Models
 
+<a id="datasets"></a>
+
 ### Datasets
 
 | Task | Content | Download Link |
@@ -280,6 +284,8 @@ python viz_predicted_trajs.py
 | Open-Door | Human videos with annotations | [Download](https://pan.sjtu.edu.cn/web/share/0a1b2d35240b75ac8db6064ea32304e8) |
 | Pick-and-Place | Depth estimated by DA3 | [Download](https://pan.sjtu.edu.cn/web/share/ca56dcf8ab86422dd5258a89d18cdbfd) |
 | Open-Door | Depth estimated by DA3 | [Download](https://pan.sjtu.edu.cn/web/share/ca56dcf8ab86422dd5258a89d18cdbfd) |
+
+<a id="uni-hand-pretrained-checkpoints"></a>
 
 ### Uni-Hand Pretrained Checkpoints
 
